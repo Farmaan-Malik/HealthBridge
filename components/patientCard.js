@@ -3,7 +3,7 @@ import React from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Themes from "@/assets/colors/colors";
 
-const PatienCard = ({name,onPress}) => {
+const PatienCard = ({name,onPress,isDoctor = true}) => {
   return (
     <View
       style={{
@@ -62,7 +62,7 @@ const PatienCard = ({name,onPress}) => {
         }}
         onPress={onPress}
       >
-        <Ionicons color={Themes.doctorTheme.primaryColor} style={{alignSelf:'center'}} size={30} name='videocam'/>
+        <Ionicons color={isDoctor ? Themes.doctorTheme.primaryColor : Themes.patientTheme.primaryColor} style={{alignSelf:'center'}} size={30} name='videocam'/>
       </TouchableOpacity>
     </View>
   );

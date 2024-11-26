@@ -4,17 +4,18 @@ import { LinearGradient } from "expo-linear-gradient";
 import Themes from "@/assets/colors/colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
-const DoctorCard = ({ height, width, image,onPress }) => {
+const DoctorCard = ({ height, width, image,onPress,name }) => {
   return (
     <View
       style={{
-        width: width ?? "100%",
+        width: width ?? "80%",
         height: height ?? "60%",
         borderRadius: 30,
         shadowOpacity: 0.2,
         shadowOffset: { width: 10, height: 20 },
         shadowColor: "black",
-        elevation:10
+        elevation:10,
+        marginTop:30,
       }}
     >
       <LinearGradient
@@ -30,7 +31,7 @@ const DoctorCard = ({ height, width, image,onPress }) => {
           Themes.patientTheme.primaryColor,
           Themes.patientTheme.secondaryColor,
         ]}
-        start={[0.5, 0.1]}
+        start={[0.1, 0.1]}
       >
         <View
           style={{
@@ -44,8 +45,8 @@ const DoctorCard = ({ height, width, image,onPress }) => {
         >
           <LinearGradient
             style={{
-              width: 250,
-              height: 250,
+              width: 150,
+              height: 150,
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
@@ -59,8 +60,8 @@ const DoctorCard = ({ height, width, image,onPress }) => {
           >
             <Image
               style={{
-                width: 250,
-                height: 250,
+                width: 150,
+                height: 150,
                 display: "flex",
                 borderWidth: 0.2,
                 borderRadius: 30,
@@ -70,7 +71,7 @@ const DoctorCard = ({ height, width, image,onPress }) => {
             />
           </LinearGradient>
           <Text style={{ fontSize: 25, fontWeight: "600", marginTop: 20 }}>
-            Dr. Peralta
+            {name}
           </Text>
           <Text style={{ fontSize: 18, fontWeight: "300" }}>
             Cardiology Specialist

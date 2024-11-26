@@ -27,13 +27,12 @@ import {
   IRtcEngineEventHandler,
   RemoteVideoState,
   RemoteVideoStateReason,
-  VideoSourceType,
-  LocalVideoStreamState,
-  LocalVideoStreamReason,
 } from "react-native-agora";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import Header from "@/components/header";
+import { router } from "expo-router";
 
-const doctor = require("../../assets/images/doctorProfile.png");
+const patient = require("../../assets/images/patientPlaceHolder.png");
 
 // Define basic information
 const appId = "a48b2c9573b34ec7894cb6ff85f7bbfc";
@@ -45,9 +44,7 @@ const uid = 0; // Local user Uid, no need to modify
 export default function index() {
   const agoraEngineRef = useRef<IRtcEngine>(); // IRtcEngine instance
   const [isJoined, setIsJoined] = useState(false); // Whether the local user has joined the channel
-  const [isHost, setIsHost] = useState(false); // User role
   const [remoteUid, setRemoteUid] = useState(0); // Uid of the remote user
-  const [message, setMessage] = useState(""); // User prompt message
   const [isControlVisible, setControlVisible] = useState(false);
   const eventHandler = useRef<IRtcEngineEventHandler>(); // Implement callback functions
   const [isSuccessful, changeSuccessful] = useState(false);
@@ -85,16 +82,14 @@ export default function index() {
       const agoraEngine = agoraEngineRef.current;
       eventHandler.current = {
         onJoinChannelSuccess: () => {
-          showMessage("Successfully joined channel: " + channelName);
           setIsJoined(true);
         },
         onUserJoined: (_connection: RtcConnection, uid: number) => {
-          showMessage("Remote user " + uid + " joined");
           setRemoteUid(uid);
         },
         onUserOffline: (_connection: RtcConnection, uid: number) => {
-          showMessage("Remote user " + uid + " left the channel");
           setRemoteUid(0);
+          leave()
         },
         onRemoteVideoStateChanged: (
           connection: RtcConnection,
@@ -116,6 +111,7 @@ export default function index() {
             updateRemoteVideoDisabled(false);
           }
         },
+        
       };
 
       // Register the event handler
@@ -136,25 +132,6 @@ export default function index() {
       return;
     }
     try {
-      if (isHost) {
-        // Start preview
-        agoraEngineRef.current?.startPreview();
-        // Join the channel as a broadcaster
-        agoraEngineRef.current?.joinChannel(token, channelName, uid, {
-          // Set channel profile to live broadcast
-          channelProfile: ChannelProfileType.ChannelProfileCommunication,
-          // Set user role to broadcaster
-          clientRoleType: ClientRoleType.ClientRoleBroadcaster,
-          // Publish audio collected by the microphone
-          publishMicrophoneTrack: true,
-          // Publish video collected by the camera
-          publishCameraTrack: true,
-          // Automatically subscribe to all audio streams
-          autoSubscribeAudio: true,
-          // Automatically subscribe to all video streams
-          autoSubscribeVideo: true,
-        });
-      } else {
         // Join the channel as an audience
         agoraEngineRef.current?.joinChannel(token, channelName, uid, {
           // Set channel profile to live broadcast
@@ -170,7 +147,6 @@ export default function index() {
           // Automatically subscribe to all video streams
           autoSubscribeVideo: true,
         });
-      }
       changeSuccessful(true);
       setMuted(false);
       setVideoEnabled(true);
@@ -184,7 +160,6 @@ export default function index() {
       agoraEngineRef.current?.leaveChannel();
       setRemoteUid(0);
       setIsJoined(false);
-      showMessage("Left the channel");
       changeSuccessful(false);
     } catch (e) {
       console.log(e);
@@ -207,39 +182,132 @@ export default function index() {
   return (
     <SafeAreaView style={globalStyles.safeArea}>
       {!isSuccessful && (
-        <View
-          style={{
-            backgroundColor: "white",
-            width: "100%",
-            height: "100%",
-            flex: 1,
-            paddingHorizontal: 10,
-            // paddingTop: 30,
-            // marginBottom:10
-          }}
-        >
-          <View
-            style={{
-              height: "20%",
-              width: "100%",
-              shadowColor: "black",
-              shadowOpacity: 1,
-              elevation: 10,
-              backgroundColor: "white",
-              shadowOffset: { width: 10, height: 10 },
-              shadowRadius: 10,
+          <>       
+        <Header height={"5%"} doctor={false} onPress={()=>{router.back()}}/>           
+            <ScrollView
+            contentContainerStyle={{
+              paddingHorizontal: 10,
+              paddingVertical: Platform.OS === "android" ? 30 : 5, // Prevent bottom clipping
             }}
-          ></View>
-          <DoctorCard
+            style={{
+              backgroundColor: "white",
+              width: "100%",
+              height: "100%",
+              flex: 1,
+              // paddingTop: 30,
+              // marginBottom:10
+            }}
+          >
+            <CustomCard isDoctor={false} image={patient} name="Patient Terry" profession="30yr , Male"/>
+            <View
+              style={{
+                width: "80%",
+                borderWidth: 0.3,
+                borderStyle: "dashed",
+                marginTop: 20,
+                alignSelf: "center",
+              }}
+            ></View>
+            <Text
+              style={{
+                fontSize: 20,
+                fontWeight: "500",
+                marginTop: 10,
+                width: "90%",
+                marginStart: 10,
+              }}
+            >
+              Doctor List:
+            </Text>
+            <PatientCard
             onPress={() => {
               join();
-              setIsHost(false);
             }}
-            height={"60%"}
-            width={"100%"}
-            image={doctor}
-          />
-        </View>
+            name={"Dr. Peralta"}
+            isDoctor={false}
+            />
+          <PatientCard
+            onPress={() => {
+              join();
+            }}
+            name={"Dr. Adrian Pimento"}
+            isDoctor={false}
+            />
+  
+            {/* <Text style={styles.head}>Agora Video SDK Quickstart</Text>
+              <View style={styles.btnContainer}>
+                  <Text onPress={join} style={styles.button}>
+                      Join Channel
+                  </Text>
+                  
+              </View>
+              <View style={styles.btnContainer}>
+                  <Text>Audience</Text>
+                  <Switch
+                      onValueChange={switchValue => {
+                          setIsHost(switchValue);
+                          if (isJoined) {
+                              leave();
+                          }
+                      }}
+                      value={isHost}
+                  />
+                  <Text>Host</Text>
+              </View> */}
+          </ScrollView>
+          </>
+        // <View
+       
+        //   style={{
+        //     backgroundColor: "white",
+        //     width: "100%",
+        //     height: "100%",
+        //     flex: 1,
+        //     // paddingHorizontal: 10,
+        //     display:'flex',
+        //     alignItems:'center'
+        //     // paddingTop: 30,
+        //     // marginBottom:10
+        //   }}
+        // >
+        //   <View
+        //     style={{
+        //       height: "10%",
+        //       width: "100%",
+        //       backgroundColor: "white",
+        //       display:'flex',
+        //       flexDirection:'row',
+        //       alignItems:'center',
+        //       justifyContent:'flex-end',
+
+        //     }}
+        //   >
+        //     <Header height={"100%"} doctor={false} onPress={()=>{router.back()}}/>
+        //   </View>
+        //   <DoctorCard
+        //   name={"Dr. Peralta"}
+        // //   left={"30"}
+        //     onPress={() => {
+        //       join();
+        //       setIsHost(false);
+        //     }}
+        //     height={"40%"}
+        //     width={"80%"}
+        //     image={doctor}
+        //   />
+        //   <DoctorCard
+        //   name={"Dr. Adrian Pimento"}
+        // //   left={"30"}
+        //     onPress={() => {
+        //       join();
+        //       setIsHost(false);
+        //     }}
+        //     height={"40%"}
+        //     width={"80%"}
+        //     image={doctor}
+        //   />
+          
+        // </View>
       )}
       {isSuccessful && (
         <View style={[globalStyles.screens, { position: "relative" }]}>
@@ -362,10 +430,6 @@ export default function index() {
     </SafeAreaView>
   );
 
-  // Display information
-  function showMessage(msg: string) {
-    setMessage(msg);
-  }
 }
 
 // Define user interface styles

@@ -2,7 +2,7 @@ import { View, Text, Image } from "react-native";
 import React from "react";
 import Themes from "@/assets/colors/colors";
 
-const CustomCards = ({ image }) => {
+const CustomCards = ({isDoctor = true, image,name="Dr. Peralta", profession = "Cardiology Specialist" }) => {
   return (
     <View
       style={{
@@ -30,9 +30,9 @@ const CustomCards = ({ image }) => {
           paddingLeft: 10,
         }}
       >
-        <Text style={{ fontSize: 25, fontWeight: "600" }}>Dr. Peralta</Text>
+        <Text style={{ fontSize: 25, fontWeight: "600" }}>{name}</Text>
         <Text style={{ fontSize: 18, fontWeight: "300" }}>
-          Cardiology Specialist
+          {profession}
         </Text>
       </View>
       <Image
@@ -42,7 +42,7 @@ const CustomCards = ({ image }) => {
           display: "flex",
           borderWidth: 0.2,
           borderRadius: 30,
-          backgroundColor: Themes.doctorTheme.secondaryColor,
+          backgroundColor: isDoctor ?  Themes.doctorTheme.secondaryColor : Themes.patientTheme.secondaryColor,
         }}
         source={image}
       />

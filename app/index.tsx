@@ -38,11 +38,11 @@ const index = () => {
 
 
   }
-  useEffect(()=>{
-    setTimeout(()=>{    router.navigate('(main)/')
-    },1000)
+  // useEffect(()=>{
+  //   setTimeout(()=>{    router.navigate('(main)/patientScreen')
+  //   },1000)
 
-  },[])
+  // },[])
 
   return (
     <SafeAreaView style={[globalStyles.safeArea]}>

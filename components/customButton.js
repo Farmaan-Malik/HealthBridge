@@ -33,7 +33,7 @@ const CustomButton = ({ doctor, width, height,style,text,onPress }) => {
       onPress={onPress}
     >
       <LinearGradient
-        start={[0.3, 0.2]}
+        start={[0.5, 0.1]}
         colors={
           doctor
             ? ([

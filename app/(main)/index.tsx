@@ -29,6 +29,7 @@ import {
   RemoteVideoStateReason,
 } from "react-native-agora";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useExpoRouter } from "expo-router/build/global-state/router-store";
 
 const doctor = require("../../assets/images/doctorProfile.png");
 
@@ -43,7 +44,6 @@ export default function index() {
   const [isJoined, setIsJoined] = useState(false); // Whether the local user has joined the channel
   const [isHost, setIsHost] = useState(true); // User role
   const [remoteUid, setRemoteUid] = useState(0); // Uid of the remote user
-  const [message, setMessage] = useState(""); // User prompt message
   const eventHandler = useRef<IRtcEngineEventHandler>(); // Implement callback functions
   const [isSuccessful, changeSuccessful] = useState(false);
   const [isControlVisible, setControlVisible] = useState(false);
@@ -80,16 +80,14 @@ export default function index() {
       const agoraEngine = agoraEngineRef.current;
       eventHandler.current = {
         onJoinChannelSuccess: () => {
-          showMessage("Successfully joined channel: " + channelName);
           setIsJoined(true);
         },
         onUserJoined: (_connection: RtcConnection, uid: number) => {
-          showMessage("Remote user " + uid + " joined");
           setRemoteUid(uid);
         },
         onUserOffline: (_connection: RtcConnection, uid: number) => {
-          showMessage("Remote user " + uid + " left the channel");
           setRemoteUid(0);
+          leave()
         },
         onRemoteVideoStateChanged: (
             connection: RtcConnection,
@@ -111,6 +109,8 @@ export default function index() {
               updateRemoteVideoDisabled(false);
             }
           },
+          
+          
       };
 
       // Register the event handler
@@ -131,7 +131,6 @@ export default function index() {
       return;
     }
     try {
-      if (isHost) {
         // Start preview
         agoraEngineRef.current?.startPreview();
         // Join the channel as a broadcaster
@@ -148,24 +147,7 @@ export default function index() {
           autoSubscribeAudio: true,
           // Automatically subscribe to all video streams
           autoSubscribeVideo: true,
-        });
-      } else {
-        // Join the channel as an audience
-        agoraEngineRef.current?.joinChannel(token, channelName, uid, {
-          // Set channel profile to live broadcast
-          channelProfile: ChannelProfileType.ChannelProfileCommunication,
-          // Set user role to audience
-          clientRoleType: ClientRoleType.ClientRoleAudience,
-          // Do not publish audio collected by the microphone
-          publishMicrophoneTrack: true,
-          // Do not publish video collected by the camera
-          publishCameraTrack: true,
-          // Automatically subscribe to all audio streams
-          autoSubscribeAudio: true,
-          // Automatically subscribe to all video streams
-          autoSubscribeVideo: true,
-        });
-      }
+        })
       changeSuccessful(true);
       setMuted(false);
       setVideoEnabled(true);
@@ -178,7 +160,6 @@ export default function index() {
       agoraEngineRef.current?.leaveChannel();
       setRemoteUid(0);
       setIsJoined(false);
-      showMessage("Left the channel");
       changeSuccessful(false);
       updateRemoteVideoDisabled(false);
 
@@ -199,16 +180,18 @@ export default function index() {
     });
   };
 
+  const router = useExpoRouter()
   // Render user interface
   return (
     <SafeAreaView style={globalStyles.safeArea}>
       {!isSuccessful && (
-        <ScrollView
+        <>       
+        <Header onPress={()=>{router.goBack()}} doctor={true}/>
+         <ScrollView
           contentContainerStyle={{
             paddingHorizontal: 10,
             paddingVertical: Platform.OS === "android" ? 30 : 5, // Prevent bottom clipping
           }}
-          StickyHeaderComponent={()=><Header/>}
           style={{
             backgroundColor: "white",
             width: "100%",
@@ -289,6 +272,8 @@ export default function index() {
                 <Text>Host</Text>
             </View> */}
         </ScrollView>
+        </>
+
       )}
       {isSuccessful && (
         <View
@@ -409,10 +394,6 @@ export default function index() {
     </SafeAreaView>
   );
 
-  // Display information
-  function showMessage(msg: string) {
-    setMessage(msg);
-  }
 }
 
 // Define user interface styles

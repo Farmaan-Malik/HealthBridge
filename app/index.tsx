@@ -56,7 +56,7 @@ const index = () => {
             width: "100%",
             textAlign: "center",
             fontSize: 30,
-            fontWeight: "bold",
+            fontWeight: '400',
           }}
         >
           {isDoctor ? "Doctor Login" : "Patient Login"}
@@ -82,7 +82,7 @@ const index = () => {
             <Text style={{ fontSize: 15 }}>Username</Text>
             <TextInput
               style={{
-                borderWidth: 2,
+                borderWidth: 0.5,
                 height: "30%",
                 width: "100%",
                 borderRadius: 10,
@@ -98,7 +98,7 @@ const index = () => {
             <View
               style={{
                 display: "flex",
-                borderWidth: 2,
+                borderWidth: 0.5,
                 borderRadius: 10,
                 height: "30%",
                 flexDirection: "row",
@@ -127,7 +127,7 @@ const index = () => {
                 }}
                 onPress={() => setShowPassword(!showPassword)}
               >
-                <Ionicons size={20} name={showPassword ? "eye" : "eye-off"} />
+                <Ionicons size={20} name={!showPassword ? "eye" : "eye-off"} />
               </TouchableOpacity>
             </View>
           </View>
@@ -156,38 +156,10 @@ const index = () => {
           }}
         />
         <TouchableOpacity style={{marginTop:30,marginBottom:30}} onPress={()=>{setDoctor(!isDoctor)}}>
-          <Text  style={{ fontSize: 18, fontWeight:'600',textDecorationLine:'underline',color:!isDoctor ? Themes.doctorTheme.primaryColor : Themes.patientTheme.primaryColor }}>
-            Sign In as a {isDoctor ? "Patient" : "Doctor"} instead
+          <Text  style={{ fontSize: 16, fontWeight:'400',textDecorationLine:'underline',color:!isDoctor ? Themes.doctorTheme.primaryColor : Themes.patientTheme.primaryColor }}>
+            Login as a {isDoctor ? "Patient" : "Doctor"} instead
           </Text>
           </TouchableOpacity>
-        {/* <View
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            marginTop: 30,
-            alignItems: "center",
-            width: "100%",
-            gap: 30,
-            justifyContent: "center",
-            borderWidth:1
-          }}
-        > */}
-          
-          {/* <Switch
-            trackColor={{
-              false: Themes.doctorTheme.primaryColor,
-              true: Themes.patientTheme.secondaryColor,
-            }}
-            thumbColor={
-              isDoctor
-                ? Themes.doctorTheme.secondaryColor
-                : Themes.patientTheme.secondaryColor
-            }
-            value={!isDoctor}
-            onValueChange={()=>setDoctor(!isDoctor)}
-            
-          /> */}
-        {/* </View> */}
         </View>
         
       </ScrollView>

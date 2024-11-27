@@ -233,85 +233,11 @@ export default function index() {
             name={"Dr. Adrian Pimento"}
             isDoctor={false}
             />
-  
-            {/* <Text style={styles.head}>Agora Video SDK Quickstart</Text>
-              <View style={styles.btnContainer}>
-                  <Text onPress={join} style={styles.button}>
-                      Join Channel
-                  </Text>
-                  
-              </View>
-              <View style={styles.btnContainer}>
-                  <Text>Audience</Text>
-                  <Switch
-                      onValueChange={switchValue => {
-                          setIsHost(switchValue);
-                          if (isJoined) {
-                              leave();
-                          }
-                      }}
-                      value={isHost}
-                  />
-                  <Text>Host</Text>
-              </View> */}
           </ScrollView>
           </>
-        // <View
-       
-        //   style={{
-        //     backgroundColor: "white",
-        //     width: "100%",
-        //     height: "100%",
-        //     flex: 1,
-        //     // paddingHorizontal: 10,
-        //     display:'flex',
-        //     alignItems:'center'
-        //     // paddingTop: 30,
-        //     // marginBottom:10
-        //   }}
-        // >
-        //   <View
-        //     style={{
-        //       height: "10%",
-        //       width: "100%",
-        //       backgroundColor: "white",
-        //       display:'flex',
-        //       flexDirection:'row',
-        //       alignItems:'center',
-        //       justifyContent:'flex-end',
-
-        //     }}
-        //   >
-        //     <Header height={"100%"} doctor={false} onPress={()=>{router.back()}}/>
-        //   </View>
-        //   <DoctorCard
-        //   name={"Dr. Peralta"}
-        // //   left={"30"}
-        //     onPress={() => {
-        //       join();
-        //       setIsHost(false);
-        //     }}
-        //     height={"40%"}
-        //     width={"80%"}
-        //     image={doctor}
-        //   />
-        //   <DoctorCard
-        //   name={"Dr. Adrian Pimento"}
-        // //   left={"30"}
-        //     onPress={() => {
-        //       join();
-        //       setIsHost(false);
-        //     }}
-        //     height={"40%"}
-        //     width={"80%"}
-        //     image={doctor}
-        //   />
-          
-        // </View>
       )}
       {isSuccessful && (
         <View style={[globalStyles.screens, { position: "relative" }]}>
-          {/* contentContainerStyle={styles.scrollContainer} */}
           {isJoined && (
             <View>
               {!isRemoteVideoDisabled ? (
@@ -383,10 +309,10 @@ export default function index() {
                 gap: 10,
                 width: "100%",
                 borderWidth: 1,
-                borderTopRightRadius: 50,
-                borderTopLeftRadius: 50,
+                borderTopRightRadius: 40,
+                borderTopLeftRadius: 40,
                 backgroundColor: "black",
-                height: "15%",
+                height: "10%",
                 position: "absolute",
                 zIndex: 5,
                 justifyContent: "space-around",
@@ -396,7 +322,7 @@ export default function index() {
             >
               <TouchableOpacity onPress={mute}>
                 <Ionicons
-                  size={50}
+                  size={40}
                   color={"white"}
                   name={isMuted ? "mic-off" : "mic"}
                 />
@@ -407,7 +333,7 @@ export default function index() {
                   borderWidth: 2,
                   borderColor: "red",
                   borderRadius: 100,
-                  padding: 10,
+                  padding: 6,
                   overflow: "hidden",
                   backgroundColor: "red",
                 }}
@@ -423,8 +349,6 @@ export default function index() {
               </TouchableOpacity>
             </View>
           )}
-
-          {/* <Text style={styles.info}>{message}</Text> */}
         </View>
       )}
     </SafeAreaView>

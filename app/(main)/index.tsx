@@ -1,10 +1,8 @@
-// Import React Hooks
 import globalStyles from "@/assets/styles/globalsStyles";
 import React, { useRef, useState, useEffect } from "react";
 import CustomCard from "../../components/customCards";
 import PatientCard from "../../components/patientCard";
 import Header from "../../components/header";
-// Import user interface elements
 import {
   SafeAreaView,
   ScrollView,
@@ -14,9 +12,7 @@ import {
   View,
   Image
 } from "react-native";
-// Import components related to obtaining Android device permissions
 import { PermissionsAndroid, Platform } from "react-native";
-// Import Agora SDK
 import {
   createAgoraRtcEngine,
   ChannelProfileType,
@@ -181,7 +177,6 @@ export default function index() {
   };
 
   const router = useExpoRouter()
-  // Render user interface
   return (
     <SafeAreaView style={globalStyles.safeArea}>
       {!isSuccessful && (
@@ -190,15 +185,13 @@ export default function index() {
          <ScrollView
           contentContainerStyle={{
             paddingHorizontal: 10,
-            paddingVertical: Platform.OS === "android" ? 30 : 5, // Prevent bottom clipping
+            paddingVertical: Platform.OS === "android" ? 30 : 5,
           }}
           style={{
             backgroundColor: "white",
             width: "100%",
             height: "100%",
             flex: 1,
-            // paddingTop: 30,
-            // marginBottom:10
           }}
         >
           <CustomCard image={doctor} />
@@ -250,27 +243,6 @@ export default function index() {
             }}
             name={"Norm Scully"}
           />
-
-          {/* <Text style={styles.head}>Agora Video SDK Quickstart</Text>
-            <View style={styles.btnContainer}>
-                <Text onPress={join} style={styles.button}>
-                    Join Channel
-                </Text>
-                
-            </View>
-            <View style={styles.btnContainer}>
-                <Text>Audience</Text>
-                <Switch
-                    onValueChange={switchValue => {
-                        setIsHost(switchValue);
-                        if (isJoined) {
-                            leave();
-                        }
-                    }}
-                    value={isHost}
-                />
-                <Text>Host</Text>
-            </View> */}
         </ScrollView>
         </>
 
@@ -282,7 +254,6 @@ export default function index() {
             { paddingTop: 30, position: "relative" },
           ]}
         >
-          {/* contentContainerStyle={styles.scrollContainer} */}
           {isJoined && (
             <View>
                  {!isRemoteVideoDisabled ? (
@@ -305,7 +276,7 @@ export default function index() {
               )}
             </View>
           )}
-          {isJoined && remoteUid !== 0 ? (
+          {isJoined && remoteUid !== 0 && (
             <View style={[globalStyles.screens]}>
                  {isVideoEnabled ? (
                 <View>
@@ -334,11 +305,8 @@ export default function index() {
                 </View>
               )}
             </View>
-          ) : (
-            <Text>
-              {isJoined && !isHost ? "Waiting for remote user to join" : ""}
-            </Text>
-          )}
+          )
+          }
           {isControlVisible && (
            <View
            style={{

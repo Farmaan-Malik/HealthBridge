@@ -90,21 +90,21 @@ Testing and debugging real-time communication features like video calls and noti
 The app had to be tested on real devices rather than emulators due to the complexity of features like real-time video calls, notifications, and device-specific functionalities. Some features, particularly Agora’s video calls, did not work properly on ios emulator and required actual hardware for testing. Ensuring that the app was fully functional on various devices with different specifications and operating systems was an essential part of the development process to avoid potential issues in production.
 
 ### Notification Setup
-The app was going to use agora notification but the documentation for it had been removed, hence the  transition to a Nodejs backend. Android emulators were not properly communicating with the locally hosted backend. Hosted the server on Keyob and user socket.io to dynamically show elements at the frontend.
+The app was going to use agora notification but the documentation for it had been removed, hence the  transition to a Nodejs backend. Android emulators were not properly communicating with the locally hosted backend. Hosted the server on Keyob and used socket.io to dynamically show elements at the frontend based on events.
 
 
 # Note:
-As mentioned above, the app should be tested on real devices for the video call feature.
+As mentioned above, the app should be tested on real devices for the video call feature to work properly.
 
 ### Login Screen
-<img width=400 src="./image7.png"/>
+<img width=500 src="./image7.png"/>
 
 With seperate themes for Doctor and patient, this page acts as a gateway into the app. I have created the assets used in this app using Canva.
 
 ### Login Setup with Hardcoded credentials 
  <Div>
-<img width=400 src="./image5.png"/>
-<img width=400 src="./image6.png"/>
+<img width=500 src="./image5.png"/>
+<img width=500 src="./image6.png"/>
  </Div>
 
  Credentials are hardcoded into the app:
@@ -119,12 +119,14 @@ With seperate themes for Doctor and patient, this page acts as a gateway into th
 ### Doctor and Patient Dashboards
 <img width=400 src="./image4.png"/>
 
-#### Doctor dashboard shows a list of patients with some dummy values. The doctor can initiate a video call with patients by pressing the video cam icon on the patient card. Once initiated, the patient is sent a notification which triggers the appearance of the doctor cards revealing "Accept" and "Reject" buttons.
+Doctor dashboard shows a list of patients with some dummy values. The doctor can initiate a video call with patients by pressing the video cam icon on the patient card. Once initiated, the patient is sent a notification which triggers the appearance of the doctor cards revealing "Accept" and "Reject" buttons.
 
 ### Call Alert using Dynamic buttons
 <Div>
-<img width=400 src="./image3.png"/>
+<img width=500 src="./image3.png"/>
 </Div>
+
+Patient can either accept or reject the call. If rejected, the buttons disappear. At the same time, the doctor (currently in the video call screen) is taken back to the Doctor dashboard.
 
 ### Video Call 
 <Div>
@@ -136,10 +138,8 @@ With seperate themes for Doctor and patient, this page acts as a gateway into th
 A Remote view that displays the other user's video feed and a small Local View that displays your own video feed.
 - Added placeholders that go with the overall theme of the users ui.
 
-#### Patient can either accept or reject the call. If rejected, the buttons disappear. At the same time, the doctor (currently in the video call screen) is taken back to the Doctor dashboard.
-
 ### Chat within a video call
-<img width=400 src="./image2.png"/>
+<img width=500 src="./image2.png"/>
 
 #### The bottom control panel can be toggled by tapping on the screen. This panel consists of 4 buttons:
 - Mute: Enables the user to mute his/her mic.

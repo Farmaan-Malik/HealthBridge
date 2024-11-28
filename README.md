@@ -92,5 +92,31 @@ The app had to be tested on real devices rather than emulators due to the comple
 # Note:
 As mentioned above, the app should be tested on real devices for the video call feature.
 
+<Div>
+<img width=200 src="./image1.png"/>
+<img width=300 src="./image2.png"/>
+<img width=300 src="./image3.png"/>
+</Div>
+ <Div>
+<img width=300 src="./image5.png"/>
+<img width=300 src="./image4.png"/>
+<img width=300 src="./image6.png"/>
+ </Div>
+  <Div>
+<img width=200 src="./image7.png"/>
+<img width=200 src="./image9.PNG"/>
+<img width=200 src="./image10.PNG"/>
+  </Div>
+   <Div>
+<img width=200 src="./image11.PNG"/>
+<img width=200 src="./image12.PNG"/>
+<img width=200 src="./image13.png"/>
+   </Div>
+ <Div>
+<img width=200 src="./image14.png"/>
+<img width=200 src="./image15.png"/>
+ </Div>
+
+
 
 

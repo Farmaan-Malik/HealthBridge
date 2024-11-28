@@ -19,11 +19,10 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useExpoRouter } from "expo-router/build/global-state/router-store";
 import { io } from "socket.io-client";
 
-export const SocketInstance = io("http://localhost:7080");
+export const SocketInstance = io("https://legal-elvera-farmaan-malik-e7bab6cc.koyeb.app/");
 
 const index = () => {
-  SocketInstance.off()
-    const router = useExpoRouter()
+  const router = useExpoRouter()
   const patient = require("../assets/images/patient.png");
   const doctor = require("../assets/images/doctor.png");
   const [isDoctor, setDoctor] = useState(true);
@@ -34,18 +33,10 @@ const index = () => {
     console.log("login Doctor");
     router.navigate('(main)/')
   }
-
   function loginPatient() {
     console.log("login Patient");
     router.navigate('(main)/patientScreen')
   }
-  // useEffect(()=>{
-  //   setTimeout(()=>{router.navigate('(main)/patientScreen')
-  //   },1000)
-
-  // },[])
-
-
 
   return (
     <SafeAreaView style={[globalStyles.safeArea]}>

@@ -1,15 +1,8 @@
-// Import React Hooks
 import globalStyles from "@/assets/styles/globalsStyles";
 import React, { useRef, useState, useEffect } from "react";
 import CustomCard from "../../components/customCards";
 import CustomAlertCard from "../../components/customAlertCard";
 import CustomMessageBox from "../../components/customMessageBox";
-import notifee from '@notifee/react-native';
-//socket.io
-import io, { Socket } from "socket.io-client";
-import { useLocalSearchParams } from "expo-router";
-
-// Import user interface elements
 import {
   Image,
   SafeAreaView,
@@ -22,9 +15,7 @@ import {
   Button,
   KeyboardAvoidingView,
 } from "react-native";
-// Import components related to obtaining Android device permissions
 import { PermissionsAndroid, Platform } from "react-native";
-// Import Agora SDK
 import {
   createAgoraRtcEngine,
   ChannelProfileType,
@@ -35,6 +26,8 @@ import {
   IRtcEngineEventHandler,
   RemoteVideoState,
   RemoteVideoStateReason,
+  ErrorCodeType,
+  QualityType,
 } from "react-native-agora";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Header from "@/components/header";
@@ -43,26 +36,45 @@ import Themes from "@/assets/colors/colors";
 import { DefaultEventsMap } from "@socket.io/component-emitter";
 import { SocketInstance } from "../index";
 
+const appId = "a48b2c9573b34ec7894cb6ff85f7bbfc";
+const token =
+"007eJxTYLj60LHp4G/1yZ/meRn/Tjo7x3xzduEksx8iAnWfZq1uKr2nwJBoYpFklGxpam6cZGySmmxuYWmSnGSWlmZhmmaelJSWbD3DPb0hkJFhu4sKKyMDBIL4rAweqTk5+QwMADp4IeQ=";
+const channelName = "Hello";
+const uid = 0;
+const socket = SocketInstance;
 const patient = require("../../assets/images/patientPlaceHolder.png");
 
-// Define basic information
-const appId = "a48b2c9573b34ec7894cb6ff85f7bbfc";
-const token ="007eJxTYLj60LHp4G/1yZ/meRn/Tjo7x3xzduEksx8iAnWfZq1uKr2nwJBoYpFklGxpam6cZGySmmxuYWmSnGSWlmZhmmaelJSWbD3DPb0hkJFhu4sKKyMDBIL4rAweqTk5+QwMADp4IeQ="
-const channelName = "Hello";
-const uid = 0; // Local user Uid, no need to modify
-const socket = SocketInstance
+const getPermission = async () => {
+  if (Platform.OS === "android") {
+    await PermissionsAndroid.requestMultiple([
+      PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+      PermissionsAndroid.PERMISSIONS.CAMERA,
+    ]);
+  }
+};
+
 export default function index() {
-  // useEffect(()=>{
-  // },[])
   type Message = {
     role: string;
     message: string;
   };
   const role = "patient";
-  const [doctorName,setDoctorName]= useState('')
-
+  const [isRemoteVideoDisabled, updateRemoteVideoDisabled] = useState(false);
+  const [isMuted, setMuted] = useState(false);
+  const [isVideoEnabled, setVideoEnabled] = useState(true);
+  const [isMessageOpen, setMessageOpen] = useState(false);
+  const [badNetwork, setBadNetwork] = useState(true);
+  const [doctorName, setDoctorName] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentMessage, setCurrentMessage] = useState("");
+  const [isJoined, setIsJoined] = useState(true); // Whether the local user has joined the channel
+  const [remoteUid, setRemoteUid] = useState(0); // Uid of the remote user
+  const [isControlVisible, setControlVisible] = useState(false);
+  const eventHandler = useRef<IRtcEngineEventHandler>(); // Implement callback functions
+  const [isSuccessful, changeSuccessful] = useState(true);
+  const agoraEngineRef = useRef<IRtcEngine>(); // IRtcEngine instance
+  agoraEngineRef.current = createAgoraRtcEngine();
+
   // Function to send a message
   const sendMessage = () => {
     if (currentMessage.trim()) {
@@ -75,125 +87,49 @@ export default function index() {
       setCurrentMessage(""); // Clear the input field after sending
     }
   };
-  useEffect(() =>{
-    const notificationSetup=async()=>{
-    try{
-      await notifee.requestPermission()
-      if (Platform.OS === "android") {
-        const channelId = await notifee.createChannel({
-          id: 'default',
-          name: 'Default Channel',
-        });
-      }
-    }catch(err){
-      console.log(err)
-    }
-  }
-  notificationSetup();
-  },[])
-  // useEffect(() => {
-  //   // Listen for incoming messages
-  //   socket.on("message", (message: Message) => {
-  //     setMessages((prevMessages) => [...prevMessages, message]);
-  //     console.log("recieved", message);
-  //   });
-  //   console.log("messages", messages);
-  //   socket.on("notification",(message)=>{
-  //     setDoctorName(message.name)
-  //     await notifee.displayNotification({
-  //       title:"Incoming call",
-  //       body:`Call From ${message.name}`,
-  //       android: {
-  //         channelId.,
-  //         smallIcon: 'name-of-a-small-icon', // optional, defaults to 'ic_launcher'.
-  //         // pressAction is needed if you want the notification to open the app when pressed
-  //         pressAction: {
-  //           id: 'default',
-  //         },
-  //       },
-  //     })
-
-  //   })
-  // }, []);
   useEffect(() => {
-    // Function to handle incoming notifications
-    const handleNotification = async (message: any) => {
-      try {
-        // Display the notification using notifee
-        await notifee.displayNotification({
-          title: "Incoming call",
-          body: `Call From ${message.name}`,
-          android: {
-            channelId: 'default', // Replace with your actual channelId
-            smallIcon: 'name-of-a-small-icon', // Replace with your small icon name
-            pressAction: {
-              id: 'default', // Action when the notification is pressed
-            },
-          },
-        });
-        setTimeout(()=>{
-          setDoctorName("")
-        },12000)
-      } catch (error) {
-        console.error('Error displaying notification:', error);
-      }
-    };
-  
     // Listen for incoming messages
     socket.on("message", (message: Message) => {
       setMessages((prevMessages) => [...prevMessages, message]);
       console.log("Received message:", message);
     });
-  
+
     // Listen for incoming notifications
     socket.on("notification", (message) => {
-      console.log("notif")
+      console.log("notification Recieved");
       setDoctorName(message.name);
-      handleNotification(message); // Call the async handler
     });
-  
+
     // Cleanup function
     return () => {
       socket.off("message");
       socket.off("notification");
     };
   }, []);
-  
-  const agoraEngineRef = useRef<IRtcEngine>(); // IRtcEngine instance
-  const [isJoined, setIsJoined] = useState(false); // Whether the local user has joined the channel
-  const [remoteUid, setRemoteUid] = useState(0); // Uid of the remote user
-  const [isControlVisible, setControlVisible] = useState(false);
-  const eventHandler = useRef<IRtcEngineEventHandler>(); // Implement callback functions
-  const [isSuccessful, changeSuccessful] = useState(false);
-  agoraEngineRef.current = createAgoraRtcEngine();
+
+  function rejectCall() {
+    setDoctorName("");
+    socket.emit("callRejected");
+  }
+
   const agoraEngine = agoraEngineRef.current;
   agoraEngine.initialize({
     appId: appId,
   });
-  const [isRemoteVideoDisabled, updateRemoteVideoDisabled] = useState(false);
-  const [isMuted, setMuted] = useState(false);
-  const [isVideoEnabled, setVideoEnabled] = useState(true);
-  const [isMessageOpen, setMessageOpen] = useState(false);
   const controlCentre = () => {
     setControlVisible(!isControlVisible);
   };
 
-  //isSuccessful isJoined isMessage
-
   useEffect(() => {
-    // Initialize the engine when the App starts
     setupVideoSDKEngine();
-    // Release memory when the App is closed
     return () => {
       agoraEngineRef.current?.unregisterEventHandler(eventHandler.current!);
       agoraEngineRef.current?.release();
     };
   }, []);
 
-  // Define the setupVideoSDKEngine method called when the App starts
   const setupVideoSDKEngine = async () => {
     try {
-      // Create RtcEngine after obtaining device permissions
       if (Platform.OS === "android") {
         await getPermission();
       }
@@ -230,15 +166,34 @@ export default function index() {
             updateRemoteVideoDisabled(false);
           }
         },
+        onError: (err: ErrorCodeType, msg: string) => {
+          if (err == ErrorCodeType.ErrTokenExpired) {
+            alert("Token has expired");
+            leave();
+          } else if (err == ErrorCodeType.ErrInvalidToken) {
+            alert("Invalid Token");
+            leave();
+          } else {
+            alert("Error has occured");
+            leave();
+          }
+        },
+        onNetworkQuality: (
+          connection: RtcConnection,
+          remoteUid: number,
+          txQuality: QualityType,
+          rxQuality: QualityType
+        ) => {
+          if (txQuality >= 4 || rxQuality >= 4) {
+            setBadNetwork(true);
+          }
+        },
       };
 
-      // Register the event handler
       agoraEngine.registerEventHandler(eventHandler.current);
-      // Initialize the engine
       agoraEngine.initialize({
         appId: appId,
       });
-      // Enable local video
       agoraEngine.enableVideo();
     } catch (e) {
       console.log("error", e);
@@ -250,27 +205,19 @@ export default function index() {
       return;
     }
     try {
-      // Join the channel as an audience
       agoraEngineRef.current?.joinChannel(token, channelName, uid, {
-        // Set channel profile to live broadcast
         channelProfile: ChannelProfileType.ChannelProfileCommunication,
-        // Set user role to audience
         clientRoleType: ClientRoleType.ClientRoleAudience,
-        // Do not publish audio collected by the microphone
         publishMicrophoneTrack: true,
-        // Do not publish video collected by the camera
         publishCameraTrack: true,
-        // Automatically subscribe to all audio streams
         autoSubscribeAudio: true,
-        // Automatically subscribe to all video streams
         autoSubscribeVideo: true,
       });
       changeSuccessful(true);
       setMuted(false);
       setVideoEnabled(true);
       updateRemoteVideoDisabled(false);
-      setMessageOpen(false)
-
+      setMessageOpen(false);
     } catch (e) {
       console.log(e);
     }
@@ -281,6 +228,7 @@ export default function index() {
       setRemoteUid(0);
       setIsJoined(false);
       changeSuccessful(false);
+      setDoctorName("");
     } catch (e) {
       console.log(e);
     }
@@ -298,7 +246,6 @@ export default function index() {
     });
   };
 
-  // Render user interface
   return (
     <SafeAreaView style={globalStyles.safeArea}>
       {!isSuccessful && (
@@ -313,15 +260,13 @@ export default function index() {
           <ScrollView
             contentContainerStyle={{
               paddingHorizontal: 10,
-              paddingVertical: Platform.OS === "android" ? 30 : 5, // Prevent bottom clipping
+              paddingVertical: Platform.OS === "android" ? 30 : 5,
             }}
             style={{
               backgroundColor: "white",
               width: "100%",
               height: "100%",
               flex: 1,
-              // paddingTop: 30,
-              // marginBottom:10
             }}
           >
             <CustomCard
@@ -354,7 +299,9 @@ export default function index() {
               onAccept={() => {
                 join();
               }}
-              onReject={()=>{setDoctorName("")}}
+              onReject={() => {
+                rejectCall();
+              }}
               isAlert={doctorName == "Dr. Peralta"}
               name={"Dr. Peralta"}
             />
@@ -362,7 +309,9 @@ export default function index() {
               onAccept={() => {
                 join();
               }}
-              onReject={()=>{setDoctorName("")}}
+              onReject={() => {
+                rejectCall();
+              }}
               isAlert={doctorName == "Dr. Adrian Pimento"}
               name={"Dr. Adrian Pimento"}
             />
@@ -373,6 +322,36 @@ export default function index() {
         <View style={[globalStyles.screens, { position: "relative" }]}>
           {isJoined && (
             <View>
+              {badNetwork && (
+                <View
+                  style={{
+                    position: "absolute",
+                    bottom: "50%",
+                    left: "25%",
+                    zIndex: 6,
+                    borderRadius: 20,
+                    width: "50%",
+                    padding: 10,
+                    backgroundColor: "white",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 18,
+                      fontWeight: "bold",
+                      textAlign: "center",
+                    }}
+                  >
+                    Bad Network Connection
+                  </Text>
+                  <Button
+                    onPress={() => setBadNetwork(false)}
+                    title="Dismiss"
+                  ></Button>
+                </View>
+              )}
               {isMessageOpen ? (
                 <KeyboardAvoidingView
                   style={{
@@ -380,21 +359,39 @@ export default function index() {
                     height: "100%",
                     paddingBottom: 30,
                     position: "relative",
+                    zIndex: 5,
                   }}
                   behavior={Platform.OS === "ios" ? "padding" : "height"}
                   keyboardVerticalOffset={20}
                 >
-                   <View style={{display:'flex',marginEnd:10,marginBottom:10}}>
-                      <Ionicons onPress={()=>setMessageOpen(false)} color={Themes.patientTheme.primaryColor} style={{elevation:10,padding:8,borderRadius:50,shadowColor:'black',shadowOpacity:0.3,shadowOffset:{width:5,height:5},backgroundColor:'white',alignSelf:'flex-end'}} size={20} name='close' />
-                    </View>
+                  <View
+                    style={{ display: "flex", marginEnd: 10, marginBottom: 10 }}
+                  >
+                    <Ionicons
+                      onPress={() => setMessageOpen(false)}
+                      color={Themes.patientTheme.primaryColor}
+                      style={{
+                        elevation: 10,
+                        padding: 8,
+                        borderRadius: 50,
+                        shadowColor: "black",
+                        shadowOpacity: 0.3,
+                        shadowOffset: { width: 5, height: 5 },
+                        backgroundColor: "white",
+                        alignSelf: "flex-end",
+                      }}
+                      size={20}
+                      name="close"
+                    />
+                  </View>
                   <ScrollView
                     contentContainerStyle={{
                       width: "100%",
                       paddingHorizontal: 8,
                       paddingBottom: 100,
+                      zIndex: 5,
                     }}
                   >
-                   
                     {messages.map((message, index) => (
                       <CustomMessageBox
                         key={index}
@@ -415,6 +412,7 @@ export default function index() {
                       flexDirection: "row",
                       justifyContent: "space-around",
                       backgroundColor: "white",
+                      zIndex: 5,
                     }}
                   >
                     <TextInput
@@ -426,12 +424,12 @@ export default function index() {
                         paddingHorizontal: 10,
                         borderRadius: 30,
                       }}
-                      value={currentMessage} // Use currentMessage state
+                      value={currentMessage}
                       placeholder="Enter message ..."
-                      onChangeText={(newValue) => setCurrentMessage(newValue)} // Update state on input change
+                      onChangeText={(newValue) => setCurrentMessage(newValue)}
                     />
                     <Ionicons
-                      onPress={sendMessage} // Correct function call
+                      onPress={sendMessage} 
                       style={{
                         padding: 12,
                         borderWidth: 0.2,
@@ -444,18 +442,10 @@ export default function index() {
                     />
                   </View>
 
-                  {/*  */}
-                  {/* <CustomTextInput
-                    Submit={() => {
-                      sendMessage();
-                    }}
-                    Bool={true}
-                  /> */}
                 </KeyboardAvoidingView>
               ) : !isRemoteVideoDisabled ? (
                 <TouchableOpacity activeOpacity={1} onPress={controlCentre}>
                   <React.Fragment key={0}>
-                    {/* Create a local view using RtcSurfaceView */}
                     <RtcSurfaceView
                       canvas={{ uid: remoteUid }}
                       style={styles.remoteView}
@@ -488,7 +478,6 @@ export default function index() {
               {isVideoEnabled ? (
                 <View>
                   <React.Fragment key={remoteUid}>
-                    {/* Create a remote view using RtcSurfaceView */}
                     <RtcSurfaceView
                       canvas={{ uid: 0 }}
                       style={[
@@ -551,43 +540,41 @@ export default function index() {
               }}
             >
               <TouchableOpacity onPress={mute}>
-             <Ionicons
-               size={50}
-               color={"white"}
-               name={isMuted ? "mic-off" : "mic"}
-             />
-           </TouchableOpacity>
-           <TouchableOpacity onPress={()=>video()}>
-             <Ionicons
-               size={40}
-               color={"white"}
-               name={isVideoEnabled ? "videocam" : "videocam-off"}
-             />
-           </TouchableOpacity>
-           
-           <TouchableOpacity onPress={()=>{
-                setMessageOpen(true)
-                setControlVisible(false)
-              }}>
+                <Ionicons
+                  size={50}
+                  color={"white"}
+                  name={isMuted ? "mic-off" : "mic"}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => video()}>
                 <Ionicons
                   size={40}
                   color={"white"}
-                  name={'chatbox'}
+                  name={isVideoEnabled ? "videocam" : "videocam-off"}
                 />
               </TouchableOpacity>
+
               <TouchableOpacity
-             onPress={leave}
-             style={{
-               borderWidth: 2,
-               borderColor: "red",
-               borderRadius: 100,
-               padding: 10,
-               overflow: "hidden",
-               backgroundColor: "red",
-             }}
-           >
-             <Ionicons size={40} color={"white"} name="call" />
-           </TouchableOpacity>
+                onPress={() => {
+                  setMessageOpen(true);
+                  setControlVisible(false);
+                }}
+              >
+                <Ionicons size={40} color={"white"} name={"chatbox"} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={leave}
+                style={{
+                  borderWidth: 2,
+                  borderColor: "red",
+                  borderRadius: 100,
+                  padding: 10,
+                  overflow: "hidden",
+                  backgroundColor: "red",
+                }}
+              >
+                <Ionicons size={40} color={"white"} name="call" />
+              </TouchableOpacity>
             </View>
           )}
         </View>
@@ -596,7 +583,6 @@ export default function index() {
   );
 }
 
-// Define user interface styles
 const styles = StyleSheet.create({
   button: {
     paddingHorizontal: 25,
@@ -635,15 +621,5 @@ const styles = StyleSheet.create({
   head: { fontSize: 20 },
   info: { backgroundColor: "#ffffe0", paddingHorizontal: 8, color: "#0000ff" },
   button2: { color: "white" },
-  button3: {},
-  button4: {},
 });
 
-const getPermission = async () => {
-  if (Platform.OS === "android") {
-    await PermissionsAndroid.requestMultiple([
-      PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-      PermissionsAndroid.PERMISSIONS.CAMERA,
-    ]);
-  }
-};

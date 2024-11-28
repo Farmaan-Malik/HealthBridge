@@ -89,6 +89,9 @@ Testing and debugging real-time communication features like video calls and noti
 ### Testing on Real Devices
 The app had to be tested on real devices rather than emulators due to the complexity of features like real-time video calls, notifications, and device-specific functionalities. Some features, particularly Agora’s video calls, did not work properly on ios emulator and required actual hardware for testing. Ensuring that the app was fully functional on various devices with different specifications and operating systems was an essential part of the development process to avoid potential issues in production.
 
+### Notification Setup
+I was using Agora and they had changed their implementation and removed the support for notifications so i implemented my own backend using express, node and socket.io. I ended up hosting it on Keyob.
+
 # Note:
 As mentioned above, the app should be tested on real devices for the video call feature.
 

@@ -16,10 +16,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import globalStyles from "../assets/styles/globalsStyles";
 import Themes from "@/assets/colors/colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { router } from "expo-router";
 import { useExpoRouter } from "expo-router/build/global-state/router-store";
+import { io } from "socket.io-client";
+
+export const SocketInstance = io("http://localhost:7080");
 
 const index = () => {
+  SocketInstance.off()
     const router = useExpoRouter()
   const patient = require("../assets/images/patient.png");
   const doctor = require("../assets/images/doctor.png");
@@ -35,14 +38,14 @@ const index = () => {
   function loginPatient() {
     console.log("login Patient");
     router.navigate('(main)/patientScreen')
-
-
   }
   // useEffect(()=>{
-  //   setTimeout(()=>{    router.navigate('(main)/patientScreen')
+  //   setTimeout(()=>{router.navigate('(main)/patientScreen')
   //   },1000)
 
   // },[])
+
+
 
   return (
     <SafeAreaView style={[globalStyles.safeArea]}>
@@ -140,6 +143,8 @@ const index = () => {
           doctor={isDoctor}
           text={"Login"}
           onPress={() => {
+            console.log("helehleh")
+            // onDisplayNotification()
             if (username == "" || password == "") {
               alert("Enter all the credentials");
             } else if (isDoctor && username == "doctor" && password == "1234") {

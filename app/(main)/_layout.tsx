@@ -66,6 +66,33 @@ const MainLayout = () => {
           },headerShown:false
         }}
       />
+       <Stack.Screen
+        name="chat"
+        options={{
+          title: "",
+          headerRight: () => {
+            return (
+              <TouchableOpacity
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 8,
+                }}
+              >
+                <Text style={{ fontSize: 16, fontWeight: "semibold" }}>
+                  Logout
+                </Text>
+                <Ionicons
+                  name="log-out-outline"
+                  size={25}
+                  color={Themes.doctorTheme.primaryColor}
+                />
+              </TouchableOpacity>
+            );
+          },headerShown:false
+        }}
+      />
     </Stack>
   );
 };

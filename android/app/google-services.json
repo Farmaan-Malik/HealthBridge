@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "464824828924",
+    "project_id": "essenzvitaassignment",
+    "storage_bucket": "essenzvitaassignment.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:464824828924:android:bf39f169399baed7b52879",
+        "android_client_info": {
+          "package_name": "com.anonymous.assignment"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBqItpt-Ek7yJW8UZD_rvz4nm-HkPmU3s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

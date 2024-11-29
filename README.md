@@ -59,7 +59,7 @@ npx expo prebuild
 ## Configure Agora SDK
 - Sign up at Agora.io and create a project.
 - Replace "appId" in the source code with your Agora App ID for both (main)/patientScreen and (main)/index.
-- Generate a temporary token in Agora console and replace the "token" constant's value with your temporary token.
+- Generate a temporary token in Agora console and replace the "token" and "channelName" values with your temporary token and channel name   respectively.
 
 ## Run the Application
 ### Run on Android

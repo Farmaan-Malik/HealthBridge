@@ -33,12 +33,10 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import Header from "@/components/header";
 import { router } from "expo-router";
 import Themes from "@/assets/colors/colors";
-import { DefaultEventsMap } from "@socket.io/component-emitter";
 import { SocketInstance } from "../index";
 
 const appId = "a48b2c9573b34ec7894cb6ff85f7bbfc";
-const token =
-"007eJxTYLj60LHp4G/1yZ/meRn/Tjo7x3xzduEksx8iAnWfZq1uKr2nwJBoYpFklGxpam6cZGySmmxuYWmSnGSWlmZhmmaelJSWbD3DPb0hkJFhu4sKKyMDBIL4rAweqTk5+QwMADp4IeQ=";
+const token  = "007eJxTYLj60LHp4G/1yZ/meRn/Tjo7x3xzduEksx8iAnWfZq1uKr2nwJBoYpFklGxpam6cZGySmmxuYWmSnGSWlmZhmmaelJSWbD3DPb0hkJFhu4sKKyMDBIL4rAweqTk5+QwMADp4IeQ=";
 const channelName = "Hello";
 const uid = 0;
 const socket = SocketInstance;
@@ -54,39 +52,39 @@ const getPermission = async () => {
 };
 
 export default function index() {
-  type Message = {
-    role: string;
-    message: string;
-  };
   const role = "patient";
   const [isRemoteVideoDisabled, updateRemoteVideoDisabled] = useState(false);
   const [isMuted, setMuted] = useState(false);
   const [isVideoEnabled, setVideoEnabled] = useState(true);
   const [isMessageOpen, setMessageOpen] = useState(false);
-  const [badNetwork, setBadNetwork] = useState(true);
+  const [badNetwork, setBadNetwork] = useState(false);
   const [doctorName, setDoctorName] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentMessage, setCurrentMessage] = useState("");
-  const [isJoined, setIsJoined] = useState(true); // Whether the local user has joined the channel
-  const [remoteUid, setRemoteUid] = useState(0); // Uid of the remote user
+  const [isJoined, setIsJoined] = useState(false);
+  const [remoteUid, setRemoteUid] = useState(0); 
   const [isControlVisible, setControlVisible] = useState(false);
-  const eventHandler = useRef<IRtcEngineEventHandler>(); // Implement callback functions
-  const [isSuccessful, changeSuccessful] = useState(true);
-  const agoraEngineRef = useRef<IRtcEngine>(); // IRtcEngine instance
+  const eventHandler = useRef<IRtcEngineEventHandler>(); 
+  const [isSuccessful, changeSuccessful] = useState(false);
+  const agoraEngineRef = useRef<IRtcEngine>(); 
   agoraEngineRef.current = createAgoraRtcEngine();
 
-  // Function to send a message
+  type Message = {
+    role: string;
+    message: string;
+  };
+
   const sendMessage = () => {
     if (currentMessage.trim()) {
-      // Prevent empty or whitespace-only messages
       const messagePayload = {
         role: role,
         message: currentMessage.trim(),
       };
-      socket.emit("message", messagePayload); // Emit the message to the server
-      setCurrentMessage(""); // Clear the input field after sending
+      socket.emit("message", messagePayload);
+      setCurrentMessage(""); 
     }
   };
+
   useEffect(() => {
     // Listen for incoming messages
     socket.on("message", (message: Message) => {
@@ -99,17 +97,17 @@ export default function index() {
       console.log("notification Recieved");
       setDoctorName(message.name);
     });
-
-    // Cleanup function
+    socket.on("endCall", () => {
+      leave();
+    });
     return () => {
       socket.off("message");
       socket.off("notification");
     };
   }, []);
 
-  function rejectCall() {
-    setDoctorName("");
-    socket.emit("callRejected");
+  const rejectCall = () => {
+  socket.emit("callRejected");
   }
 
   const agoraEngine = agoraEngineRef.current;
@@ -228,7 +226,10 @@ export default function index() {
       setRemoteUid(0);
       setIsJoined(false);
       changeSuccessful(false);
+      setVideoEnabled(true)
       setDoctorName("");
+      updateRemoteVideoDisabled(false);
+
     } catch (e) {
       console.log(e);
     }

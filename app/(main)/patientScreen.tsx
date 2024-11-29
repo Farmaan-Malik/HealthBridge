@@ -36,7 +36,7 @@ import Themes from "@/assets/colors/colors";
 import { SocketInstance } from "../index";
 
 const appId = "a48b2c9573b34ec7894cb6ff85f7bbfc";
-const token  = "007eJxTYLj60LHp4G/1yZ/meRn/Tjo7x3xzduEksx8iAnWfZq1uKr2nwJBoYpFklGxpam6cZGySmmxuYWmSnGSWlmZhmmaelJSWbD3DPb0hkJFhu4sKKyMDBIL4rAweqTk5+QwMADp4IeQ=";
+const token  = "007eJxTYOCTiEw+VvbgC880zcO8C3l0M1Z8jG3QPXeZ23vvsQkTXSYpMCSaWCQZJVuamhsnGZukJptbWJokJ5mlpVmYppknJaUlT57kmd4QyMjQLOvHxMgAgSA+K4NHak5OPgMDACh5HvE=";
 const channelName = "Hello";
 const uid = 0;
 const socket = SocketInstance;

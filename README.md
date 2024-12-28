@@ -46,7 +46,7 @@
 ---
 ## Clone the Repository
 ```bash
-git clone https://github.com/Farmaan-Malik/essenZvita_Assignment
+https://github.com/Farmaan-Malik/HealthBridge.git
 ```
 ## Setup Instructions
 Install Dependencies and prebuild
